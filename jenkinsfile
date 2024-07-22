@@ -1,0 +1,37 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Checkout') {
+            steps {
+                // Checkout the code from the specified Git repository and branch
+                git branch: 'develop', url: https://github.com/Iamriteshkalane/devops.git
+            }
+        }
+
+        stage('Pull Git Content') {
+            steps {
+                // Pull Git content into a specific folder
+                script {
+                    // Replace '/path/to/target/folder' with your target folder path
+                    def targetFolder = C:\Users\91724\Desktop\git\git
+                    dir(targetFolder) {
+                        checkout scm
+                    }
+                }
+            }
+        }
+
+        // Add more stages as needed for your pipeline
+    }
+
+    // Post-build actions, notifications, etc.
+    post {
+        success {
+            echo 'Pipeline executed successfully!'
+        }
+        failure {
+            echo 'Pipeline execution failed!'
+        }
+    }
+}
