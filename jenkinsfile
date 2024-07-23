@@ -1,0 +1,39 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Checkout') {
+            steps {
+                // Checkout the code from the Git repository
+                checkout scm
+            }
+        }
+
+        stage('Deploy to Test') {
+            when {
+                branch 'develop'
+            }
+            steps {
+                // Trigger the 'test' job which copies files to the test node
+                build job: 'test'
+            }
+        }
+
+        stage('Deploy to Prod') {
+            when {
+                branch 'master'
+            }
+            steps {
+                // Trigger the 'prod' job if 'test' job succeeds
+                script {
+                    def testJob = build job: 'test', propagate: false
+                    if (testJob.result == 'SUCCESS') {
+                        build job: 'prod'
+                    } else {
+                        error 'Test job failed, not triggering prod job.'
+                    }
+                }
+            }
+        }
+    }
+}
